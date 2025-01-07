@@ -130,10 +130,11 @@ class ElasticStructure(Structure):
         return sorted(indices)
 
     def copy(self):
+        reference_cell=None if self._ref_cell is None else self._ref_cell.copy()
         return ElasticStructure(
             cell=self.cell.copy(),
             elements=self.elements[:],
             positions=self.positions.copy(),
             pbc=self.pbc[:],
-            reference_cell=self.reference_cell.copy()
+            reference_cell=reference_cell
         )

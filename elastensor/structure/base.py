@@ -1,7 +1,7 @@
 import numpy as np
 from spglib import get_spacegroup
 
-from .validate import get_valid_array
+from ..utils import get_valid_array
 
 valid_symbols = [
     # 0
@@ -138,7 +138,7 @@ class Structure:
 
     @property
     def pbc(self):
-        self._pbc
+        return self._pbc
 
     @pbc.setter
     def pbc(self, value):

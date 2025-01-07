@@ -5,13 +5,13 @@ from .deformations import Deformations
 from .structure import ElasticStructure
 from .parsers import write_input_structure
 
-class DeformationsGenerator:
+class Deformator:
 
     def __init__(
         self,
         structure_file,
         amplitude=0.05,
-        mode='strain_energy',
+        mode='strain-energy',
         third_order=False
     ):
 

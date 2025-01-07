@@ -30,10 +30,13 @@ class Deformations:
 
         self._mode = mode
         self._amplitude = amplitude
-        self.indices = elastic_indices
+        self.elastic_indices = elastic_indices
+
+    def __repr__(self):
+        return str(self._data)
 
     def __str__(self):
-        return str(self._data)
+        return f'Elastic Indices: {self.elastic_indices}\nStrain:\n{self._strain}'
 
     def __len__(self):
         return len(self._data)
@@ -47,30 +50,30 @@ class Deformations:
         return self._mode
 
     @property
-    def indices(self):
+    def elastic_indices(self):
         return list(self._data.keys())
 
     @elastic_indices.setter
     def elastic_indices(self, values):
 
         try:
-            indices = [tuple(int(n) for n in idx) for i in values]
+            indices = [tuple(int(n) for n in idx) for idx in values]
         except (TypeError, ValueError) as err:
             raise type(err)("'elastic_indices' must be a list of tuples of integers.")
-        if any(n < 0 for n in idx for idx in indices):
+        if any(n < 0 for idx in indices for n in idx):
             raise ValueError("'elastic_indices' must be nonnegative.")
         if any(len(idx) > 3 for idx in indices):
             raise NotImplementedError("fourth-order elastic constants and beyond are not available.")
 
         self._set_strain(indices)
 
-    def _sef_strain(self, indices):
+    def _set_strain(self, indices):
 
         self._data = {
             index: self.calculate_strain(index, amplitude=self.amplitude, mode=self.mode)
             for index in indices
         }
-        self._strain = np.unique( np.vstack( list(self._data.values()), axis=0) )
+        self._strain = np.unique( np.vstack( list(self._data.values()) ), axis=0)
 
     @staticmethod
     def calculate_strain(elastic_index, amplitude=0.005, mode='strain-energy'):
@@ -123,7 +126,7 @@ class Deformations:
 
     def gradient(self):
 
-        Q = 2 * self.matrix() + np.eye(3)[None, :, :]
+        Q = 2 * self.as_matrix() + np.eye(3)[None, :, :]
         strain_gradient = np.linalg.cholesky(Q)
 
         return strain_gradient
