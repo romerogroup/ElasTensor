@@ -1,34 +1,138 @@
 import numpy as np
 from spglib import get_spacegroup
 
-from ..utils import get_valid_array
+from elastensor.utils import get_valid_array
 
 valid_symbols = [
     # 0
-    'Ae',
+    "Ae",
     # 1
-    'H', 'He',
+    "H",
+    "He",
     # 2
-    'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
+    "Li",
+    "Be",
+    "B",
+    "C",
+    "N",
+    "O",
+    "F",
+    "Ne",
     # 3
-    'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar',
+    "Na",
+    "Mg",
+    "Al",
+    "Si",
+    "P",
+    "S",
+    "Cl",
+    "Ar",
     # 4
-    'K', 'Ca', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
-    'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr',
+    "K",
+    "Ca",
+    "Sc",
+    "Ti",
+    "V",
+    "Cr",
+    "Mn",
+    "Fe",
+    "Co",
+    "Ni",
+    "Cu",
+    "Zn",
+    "Ga",
+    "Ge",
+    "As",
+    "Se",
+    "Br",
+    "Kr",
     # 5
-    'Rb', 'Sr', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd',
-    'In', 'Sn', 'Sb', 'Te', 'I', 'Xe',
+    "Rb",
+    "Sr",
+    "Y",
+    "Zr",
+    "Nb",
+    "Mo",
+    "Tc",
+    "Ru",
+    "Rh",
+    "Pd",
+    "Ag",
+    "Cd",
+    "In",
+    "Sn",
+    "Sb",
+    "Te",
+    "I",
+    "Xe",
     # 6
-    'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy',
-    'Ho', 'Er', 'Tm', 'Yb', 'Lu',
-    'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi',
-    'Po', 'At', 'Rn',
+    "Cs",
+    "Ba",
+    "La",
+    "Ce",
+    "Pr",
+    "Nd",
+    "Pm",
+    "Sm",
+    "Eu",
+    "Gd",
+    "Tb",
+    "Dy",
+    "Ho",
+    "Er",
+    "Tm",
+    "Yb",
+    "Lu",
+    "Hf",
+    "Ta",
+    "W",
+    "Re",
+    "Os",
+    "Ir",
+    "Pt",
+    "Au",
+    "Hg",
+    "Tl",
+    "Pb",
+    "Bi",
+    "Po",
+    "At",
+    "Rn",
     # 7
-    'Fr', 'Ra', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk',
-    'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr',
-    'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc',
-    'Lv', 'Ts', 'Og'
+    "Fr",
+    "Ra",
+    "Ac",
+    "Th",
+    "Pa",
+    "U",
+    "Np",
+    "Pu",
+    "Am",
+    "Cm",
+    "Bk",
+    "Cf",
+    "Es",
+    "Fm",
+    "Md",
+    "No",
+    "Lr",
+    "Rf",
+    "Db",
+    "Sg",
+    "Bh",
+    "Hs",
+    "Mt",
+    "Ds",
+    "Rg",
+    "Cn",
+    "Nh",
+    "Fl",
+    "Mc",
+    "Lv",
+    "Ts",
+    "Og",
 ]
+
 
 def validate_symbols(value):
 
@@ -59,20 +163,57 @@ def validate_symbols(value):
 
 
 class Structure:
+    """A class representing a crystal structure.
 
-    def __init__(
-        self,
-        cell=None,
-        elements=None,
-        positions=None,
-        pbc=None
-    ):
+    This class handles the basic geometric and compositional properties of crystal structures,
+    including unit cell parameters, atomic positions, and symmetry information.
+
+    Parameters
+    ----------
+    cell : array_like, optional
+        3x3 matrix defining the unit cell vectors, default is identity matrix
+    elements : array_like, optional
+        Chemical symbols or atomic numbers of atoms, default is ('Ae',)
+    positions : array_like, optional
+        Fractional coordinates of atoms, shape (n_atoms, 3), default is zeros
+    pbc : tuple of bool, optional
+        Periodic boundary conditions in x, y, z directions, default is (True, True, True)
+
+    Attributes
+    ----------
+    cell : ndarray
+        3x3 matrix of unit cell vectors
+    elements : list
+        Chemical symbols of atoms
+    positions : ndarray
+        Fractional coordinates of atoms
+    pbc : tuple
+        Periodic boundary conditions
+    lattice_parameters : ndarray
+        Lengths of unit cell vectors
+    angles : ndarray
+        Angles between unit cell vectors in degrees
+    numbers : list
+        Atomic numbers of elements
+    composition : dict
+        Dictionary of element counts
+    cartesian_positions : ndarray
+        Cartesian coordinates of atoms
+    symmetry_axis : int or None
+        Principal symmetry axis if applicable
+    crystal_family : str
+        Crystal system family
+    spacegroup : int
+        Space group number
+    """
+
+    def __init__(self, cell=None, elements=None, positions=None, pbc=None):
         if cell is None:
             cell = np.eye(3)
         if elements is None:
-            elements = ('Ae',)
+            elements = ("Ae",)
         if positions is None:
-            positions = np.zeros( (len(elements), 3) )
+            positions = np.zeros((len(elements), 3))
         if pbc is None:
             pbc = (True, True, True)
 
@@ -83,12 +224,13 @@ class Structure:
 
     @property
     def cell(self):
+        """ndarray: 3x3 matrix defining the unit cell vectors"""
         return self._cell
 
     @cell.setter
     def cell(self, value):
 
-        self._cell = get_valid_array(value, 'cell', dtype=float, shape=(3, 3))
+        self._cell = get_valid_array(value, "cell", dtype=float, shape=(3, 3))
         self._update_spacegroup()
 
     @property
@@ -119,7 +261,9 @@ class Structure:
 
     @property
     def composition(self):
-        return {element: self._elements.count(element) for element in set(self._elements)}
+        return {
+            element: self._elements.count(element) for element in set(self._elements)
+        }
 
     @property
     def positions(self):
@@ -127,9 +271,11 @@ class Structure:
 
     @positions.setter
     def positions(self, value):
- 
+
         natoms = len(self.elements)
-        self._positions = get_valid_array(value, 'positions', dtype=float, shape=(natoms, 3))
+        self._positions = get_valid_array(
+            value, "positions", dtype=float, shape=(natoms, 3)
+        )
         self._update_spacegroup()
 
     @property
@@ -174,30 +320,30 @@ class Structure:
             pass
         else:
             spcgrp_string = get_spacegroup((lattice, positions, numbers)).split()[1]
-            spacegroup = int(spcgrp_string.replace('(', '').replace(')', ''))
-            
-            if spacegroup < 3:
-                family = 'triclinic'
-            elif spacegroup < 16:
-                family = 'monoclinic'
-            elif spacegroup < 75:
-                family = 'orthorhombic'
-            elif spacegroup < 89:
-                family = 'tetragonal(II)'
-            elif spacegroup < 143:
-                family = 'tetragonal(I)'
-            elif spacegroup < 149:
-                family = 'trigonal(II)'
-            elif spacegroup < 168:
-                family = 'trigonal(I)'
-            elif spacegroup < 195:
-                family = 'hexagonal'
-            else:
-                family = 'cubic'
+            spacegroup = int(spcgrp_string.replace("(", "").replace(")", ""))
 
-            if family == 'monoclinic' or family == 'hexagonal':
+            if spacegroup < 3:
+                family = "triclinic"
+            elif spacegroup < 16:
+                family = "monoclinic"
+            elif spacegroup < 75:
+                family = "orthorhombic"
+            elif spacegroup < 89:
+                family = "tetragonal(II)"
+            elif spacegroup < 143:
+                family = "tetragonal(I)"
+            elif spacegroup < 149:
+                family = "trigonal(II)"
+            elif spacegroup < 168:
+                family = "trigonal(I)"
+            elif spacegroup < 195:
+                family = "hexagonal"
+            else:
+                family = "cubic"
+
+            if family == "monoclinic" or family == "hexagonal":
                 axis = np.abs(self.angles - 90.0).argmax()
-            elif 'tetragonal' in family:
+            elif "tetragonal" in family:
                 parameters = self.lattice_parameters
                 axis = np.abs(parameters - parameters.mean()).argmax()
             else:
@@ -208,35 +354,63 @@ class Structure:
             self._axis = axis
 
     def copy(self):
+        """Create a deep copy of the structure.
+
+        Returns
+        -------
+        Structure
+            A new Structure instance with copied data
+        """
         return Structure(
-            cell=self.cell.copy(), 
-            elements=self.elements[:], 
-            positions=self.positions.copy(), 
-            pbc=self.pbc[:]
+            cell=self.cell.copy(),
+            elements=self.elements[:],
+            positions=self.positions.copy(),
+            pbc=self.pbc[:],
         )
 
     def to_ase(self):
+        """Convert to ASE Atoms object.
 
+        Returns
+        -------
+        ase.atoms.Atoms
+            Equivalent ASE Atoms object
+        """
         from ase.atoms import Atoms
+
         atoms = Atoms(
             cell=self.cell,
             positions=self.cartesian_positions,
             numbers=self.numbers,
-            pbc=self.pbc
+            pbc=self.pbc,
         )
 
         return atoms
 
     @classmethod
     def from_file(cls, filename, pbc=(True, True, True)):
+        """Create Structure from structure file using ASE's IO.
 
+        Parameters
+        ----------
+        filename : str
+            Path to structure file
+        pbc : tuple of bool, optional
+            Periodic boundary conditions, default is (True, True, True)
+
+        Returns
+        -------
+        Structure
+            New Structure instance from file
+        """
         from ase.io import read
+
         atoms = read(filename)
         structure = cls(
             cell=atoms.cell.array,
             elements=atoms.numbers,
             positions=atoms.get_scaled_positions(),
-            pbc=pbc
+            pbc=pbc,
         )
 
         return structure
