@@ -70,7 +70,7 @@ jobs:
     - name: Push changes
       if: success()
       run: |
-        git push origin HEAD:main
+        git push origin HEAD:master
 
     - name: Get the current release body
       if: success() 
