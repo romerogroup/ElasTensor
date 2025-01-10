@@ -1,5 +1,6 @@
-from .main import write_input_structure
+from .main import read, write_input_structure
 
 __all__ = (
-    'write_input_structure',
+    'read',
+    'write_input_structure'
 )

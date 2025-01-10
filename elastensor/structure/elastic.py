@@ -2,14 +2,16 @@ import numpy as np
 from itertools import combinations, product, combinations_with_replacement
 
 from .base import Structure
-from ..utils.generator import chain
+from ..utils import chain, get_valid_array
 
 class ElasticStructure(Structure):
 
-    def __init__(self, reference_cell=None, **kwargs):
+    def __init__(self, reference_cell=None, energy=None, stress=None, **kwargs):
         super().__init__(**kwargs)
 
         self.reference_cell = reference_cell
+        self.energy = energy
+        self.stress = stress
 
     @property
     def reference_cell(self):
@@ -40,6 +42,32 @@ class ElasticStructure(Structure):
             voight_strain = strain_matrix[[0, 1, 2, 1, 2, 0], [0, 1, 2, 2, 0, 1]]
             voight_strain[3:] *= 2
             self._strain = voight_strain
+
+    @property
+    def energy(self):
+        return self._energy
+
+    @energy.setter
+    def energy(self, value):
+
+        try:
+            self._energy = float(value)
+        except TypeError:
+            if value is None:
+                self._energy = None
+            else:
+                raise TypeError(f"'energy' must be a real number not '{type(value)}'")
+
+    @property
+    def stress(self):
+        return self._stress
+
+    @stress.setter
+    def stress(self, value):
+        if value is None:
+            self._stress = None
+        else:
+            self._stress = get_valid_array(value, 'stress', dtype=float, shape=(3, 3))
 
     def second_order_indices(self):
 

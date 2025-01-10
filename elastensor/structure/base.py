@@ -1,6 +1,7 @@
 import numpy as np
 from spglib import get_spacegroup
 
+from ..parsers import read
 from ..utils import get_valid_array
 
 valid_symbols = [
@@ -65,7 +66,9 @@ class Structure:
         cell=None,
         elements=None,
         positions=None,
-        pbc=None
+        pbc=None,
+        scaling_factor=None,
+        cartesian=False
     ):
         if cell is None:
             cell = np.eye(3)
@@ -80,6 +83,11 @@ class Structure:
         self.elements = elements
         self.positions = positions
         self.pbc = pbc
+
+        if scaling_factor is not None:
+            self.cell *= float(scaling_factor)
+        if cartesian:
+            self.positions = np.linalg.solve(self.cell.T, self.positions.T).T
 
     @property
     def cell(self):
@@ -230,13 +238,7 @@ class Structure:
     @classmethod
     def from_file(cls, filename, pbc=(True, True, True)):
 
-        from ase.io import read
-        atoms = read(filename)
-        structure = cls(
-            cell=atoms.cell.array,
-            elements=atoms.numbers,
-            positions=atoms.get_scaled_positions(),
-            pbc=pbc
-        )
+        data = read(filename)
+        structure = cls(pbc=pbc, **data)
 
         return structure
