@@ -15,6 +15,15 @@ def get_code_format(filename):
         raise FileTypeError(f"Unrecognized file type '{suffix}'")
 
 def read(filename):
+    """Reads crystal structure and DFT output information from input file
+
+    Parameters
+    ----------
+    filename : str
+        Name of input file
+
+
+    """
 
     code_format = get_code_format(filename)
 
@@ -24,9 +33,27 @@ def read(filename):
     return parser
 
 def write_input_structure(structure, filename='POSCAR', name_append=''):
+    """Write crystal structure to input file for DFT calculations.
 
+    Parameters
+    ----------
+    structure : Structure
+        Crystal structure to write to file
+    filename : str, optional
+        Name of file to write the structure. Defaults to Vasp POSCAR
+    name_append : str, optional
+        String to append to filename, by default ''
+
+    Raises
+    ------
+    FileTypeError
+        If file type from filename is not recognized
+    """
     code_format = get_code_format(filename)
+    
+    components = filename.split('.')
+    components[0] += '-' + name_append if name_append else ''
+    filename = '.'.join(components)
 
     if code_format == 'vasp':
-        filename += '-' + name_append if name_append else ''
         VaspParser.write_poscar(structure, filename=filename)

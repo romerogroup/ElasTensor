@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools_scm]
+local_scheme="no-local-version"
+version_file = "elastensor/_version.py"
+
+
+[project]
+name = "elastensor"
+authors = [
+    {name = "Andres Mora", email = "at00021@mix.wvu.edu"},
+    {name = "Logan Lang", email = "lllang@mix.wvu.edu"}
+]
+description = "A package designed to assist with the creation of 3rd order elastic constants from DFT"
+readme = {file = "README.md", content-type = "text/markdown"}  
+requires-python = ">=3.8"
+keywords = ["dft", "elastic", "tensors", "vasp", "python"]
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+
+dynamic = ["version"]
+
+dependencies = [
+    
+    "python-dotenv",
+    "numpy",
+    "pymatgen",
+    "ase",
+    "spglib",
+    "variconfig"
+]
+
+[project.optional-dependencies]
+
+
+dev = ["sphinx", 
+"sphinx_rtd_theme",
+"pytest",
+"setuptools",
+"setuptools_scm",]
+
+
+[project.urls]
+Repository = "https://github.com/romerogroup/ElasTensor"
+Issues = "https://github.com/romerogroup/ElasTensor/issues"
+Changelog = "https://github.com/romerogroup/ElasTensor/CHANGELOG.md"
+
+
+
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["elastensor*"]
+exclude = ["elastensor.tests*"]
+
+
+[tool.setuptools.package-data]
+elastensor = ["**/*.json", "**/*.csv", "**/*.yml", "**/*.parquet"]
+# include = ["matgraphdb"]
+# exclude = ["matgraphdb.tests"]
+

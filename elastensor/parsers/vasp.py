@@ -1,10 +1,19 @@
 from xml.etree import ElementTree
 
-from .base import Parser
-from .exceptions import *
+from elastensor.parsers.base import Parser
+from elastensor.parsers.exceptions import *
 
 class VaspParser(Parser):
+    """A class to parse information from Vasp input and outpt files
 
+    This class reads POSCAR and vasprun.xml files to extract crystal structure data and DFT
+    output information like total energy and stress tensor
+
+    Parameters
+    ----------
+    **kwargs
+        Keyword arguments passed to Parser.__init__()
+    """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -14,6 +23,7 @@ class VaspParser(Parser):
 
     @filename.setter
     def filename(self, value):
+        """Set the filename. Information is extracted from file automatically."""
 
         if value is None:
             self._file = None
@@ -26,6 +36,7 @@ class VaspParser(Parser):
             self._read()
 
     def _read(self):
+        """Extracts information from provided file and stores it in self._data"""
 
         suffix = self.filename.split('.')[-1]
 
@@ -37,7 +48,20 @@ class VaspParser(Parser):
             raise FileTypeError(f"Unrecognized file type '{suffix}'.")
 
     def _read_poscar(self):
+        """Reads crystal structure information from VASP POSCAR file
 
+        Notes
+        -----
+        The file must follow VASP's POSCAR basic format
+        - (Line 1) Comment with system's description (ignored but required for indexing purposes)
+        - (Line 2) Scaling factor that multiplies the vectors defining the lattice
+        - (Lines 3-5) Each line contains a vector of size 3 that defines the lattice
+        - (Line 4) Species names (required although it is optional in VASP's format)
+        - (Line 5) Ions per species (must have the same elements as species names)
+        - (Line 6) Contains the sinlge word 'Direct' or 'Cartesian' specifying the position vectors
+        - (Lines 7-) Position vectors for each ion
+        Any line after the positions vectors end will be ignored
+        """
         with open(self.filename, 'r') as File:
             lines = list( map(str.split, File.readlines()) )
 
@@ -61,6 +85,7 @@ class VaspParser(Parser):
         }
 
     def _read_xml(self):
+        """Reads vasprun.xml file and extracts output structure, total energy, and stress tensor"""
 
         try:
             tree = ElementTree.parse(self.filename)
@@ -98,6 +123,25 @@ class VaspParser(Parser):
 
     @staticmethod
     def write_poscar(structure, filename='POSCAR'):
+        """Write crystal structure to VASP POSCAR file.
+
+        Parameters
+        ----------
+        structure : Structure
+            Crystal structure to write to file
+        filename : str, optional
+            Output filename, by default 'POSCAR'
+
+        Notes
+        -----
+        The POSCAR file format contains the following information:
+        - System name (constructed from composition)
+        - Unit cell vectors
+        - Element symbols
+        - Number of atoms per element
+        - Direct coordinates flag
+        - Atomic positions in direct coordinates with element labels
+        """
 
         cell = structure.cell
         elements = structure.elements
