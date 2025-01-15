@@ -3,17 +3,9 @@ from warnings import warn
 
 import numpy as np
 
-signs = np.array([-1.0, 1.0])
-crystal_families = [
-    "triclinic",
-    "monoclinic",
-    "orthorhombic",
-    "tetragonal",
-    "trigonal",
-    "hexagonal",
-    "cubic",
-]
+from elastensor.utils import get_valid_mode 
 
+signs = np.array([-1.0, 1.0])
 
 class Deformations:
     """A class to generate strain deformations for elastic constant calculations.
@@ -32,21 +24,16 @@ class Deformations:
         The method to use for calculating elastic constants.
     """
 
-    def __init__(self, *elastic_indices, amplitude=None, mode="strain-energy"):
-
-        mode = str(mode)
-        available_modes = ["strain-stress", "strain-energy"]
-        if mode not in available_modes:
-            raise ValueError(
-                f"Unrecognized mode '{mode}'. Valid options are: {', '.join(available_modes)}."
-            )
+    def __init__(self, *elastic_indices, amplitude=0.05, mode="strain-energy"):
 
         try:
             amplitude = float(amplitude)
         except (ValueError, TypeError) as err:
             raise type(err)("The deformation amplitude must be a numerical value.")
+        if amplitude <= 0.0:
+            raise ValueError("The deformation amplitude must be positive.")
 
-        self._mode = mode
+        self._mode = get_valid_mode(mode)
         self._amplitude = amplitude
         self.elastic_indices = elastic_indices
 

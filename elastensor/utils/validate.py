@@ -1,5 +1,28 @@
 import numpy as np
 
+available_modes = ['strain-stress', 'strain-energy']
+
+def get_valid_mode(mode):
+    """Validate mode for generating deformations and calculating elastic constants.
+
+    Parameters
+    ----------
+    mode : str_like
+        The method to use for calculating elastic constants
+
+    Returns
+    -------
+    valid_mode
+        Validated mode
+    """
+
+    valid_mode = str(mode)
+    if mode not in available_modes:
+        raise ValueError(
+            f"Unrecognized mode '{mode}'. Valid options are: {', '.join(available_modes)}."
+        )
+
+    return valid_mode
 
 def get_valid_array(array, attribute, dtype=float, shape=None):
     """Convert input to numpy array with validation.
