@@ -253,3 +253,11 @@ class ElasticStructure(Structure):
             pbc=self.pbc[:],
             reference_cell=reference_cell,
         )
+
+    @classmethod
+    def from_file(cls, filename, reference_cell=None, **kwargs):
+
+        structure = super().from_file(filename, **kwargs)
+        structure.reference_cell = reference_cell
+
+        return structure
