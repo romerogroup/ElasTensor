@@ -3,11 +3,12 @@ from warnings import warn
 
 import numpy as np
 
-from elastensor.utils import get_valid_mode 
+from .mapping import DeformMapping
+from elastensor.utils import get_valid_mode
 
 signs = np.array([-1.0, 1.0])
 
-class Deformations:
+class Deformations(DeformMapping):
     """A class to generate strain deformations for elastic constant calculations.
 
     This class handles the generation of strain deformations needed to calculate
@@ -37,18 +38,6 @@ class Deformations:
         self._amplitude = amplitude
         self.elastic_indices = elastic_indices
 
-    def __repr__(self):
-        """Return string representation of the deformation data."""
-        return str(self._data)
-
-    def __str__(self):
-        """Return formatted string showing elastic indices and strain."""
-        return f"Elastic Indices: {self.elastic_indices}\nStrain:\n{self._strain}"
-
-    def __len__(self):
-        """Return number of deformations."""
-        return len(self._data)
-
     @property
     def amplitude(self):
         """float: The amplitude of the strain deformation."""
@@ -58,43 +47,6 @@ class Deformations:
     def mode(self):
         """str: The method used for calculating elastic constants."""
         return self._mode
-
-    @property
-    def elastic_indices(self):
-        """list: The indices of elastic constants being calculated."""
-        return list(self._data.keys())
-
-    @elastic_indices.setter
-    def elastic_indices(self, values):
-        """Set the elastic indices and recalculate strains.
-
-        Parameters
-        ----------
-        values : list of tuple
-            List of tuples containing indices for elastic constants.
-
-        Raises
-        ------
-        TypeError
-            If values cannot be converted to tuples of integers.
-        ValueError
-            If any index is negative.
-        NotImplementedError
-            If indices correspond to fourth or higher order constants.
-        """
-
-        try:
-            indices = [tuple(int(n) for n in idx) for idx in values]
-        except (TypeError, ValueError) as err:
-            raise type(err)("'elastic_indices' must be a list of tuples of integers.")
-        if any(n < 0 for idx in indices for n in idx):
-            raise ValueError("'elastic_indices' must be nonnegative.")
-        if any(len(idx) > 3 for idx in indices):
-            raise NotImplementedError(
-                "fourth-order elastic constants and beyond are not available."
-            )
-
-        self._set_strain(indices)
 
     def _set_strain(self, indices):
         """Calculate and store strain tensors for given elastic indices.
@@ -204,28 +156,3 @@ class Deformations:
         strain_gradient = np.linalg.cholesky(Q)
 
         return strain_gradient
-
-    @classmethod
-    def from_elastic_structure(cls, structure, third_order=False, **kwargs):
-        """Create Deformations instance from an elastic structure.
-
-        Parameters
-        ----------
-        structure : ElasticStructure
-            The elastic structure to generate deformations for.
-        third_order : bool, optional
-            Whether to include third-order elastic constants.
-        **kwargs
-            Additional keyword arguments passed to the Deformations constructor.
-
-        Returns
-        -------
-        Deformations
-            New instance with deformations for the given structure.
-        """
-
-        indices = structure.second_order_indices()
-        if third_order:
-            indices += structure.third_order_indices()
-
-        return cls(*indices, **kwargs)

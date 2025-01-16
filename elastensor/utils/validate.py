@@ -62,3 +62,43 @@ def get_valid_array(array, attribute, dtype=float, shape=None):
                 raise ValueError(f"'{attribute}' must be of shape '{required_shape}'")
 
     return the_array
+
+def get_valid_indices(values):
+    """Validates the indices of the elastic constants
+
+    Parameters
+    ----------
+    values : sequence of tuples
+        Sequence of tuples containing indices for elastic constants.
+
+    Returns
+    -------
+    list of tuples
+        The list of validated elsatic indices
+
+    Raises
+    ------
+    TypeError
+        If values cannot be converted to tuples of integers.
+    ValueError
+        If any index is negative or if the length of any tuple is smaller than 2.
+    NotImplementedError
+        If indices correspond to fourth or higher order constants.
+    """
+
+    try:
+        indices = [tuple(int(n) for n in idx) for idx in values]
+    except (TypeError, ValueError) as err:
+        raise type(err)("elastic index must be a list of tuples of integers.")
+    if any(n < 0 for idx in indices for n in idx):
+        raise ValueError("elastic index must be nonnegative.")
+
+    order_list = [len(idx) for idx in indices]
+    if any(order < 2 for order in order_list):
+        raise ValueError("elastic index must be at least of second-order.")
+    if any(order > 3 for order in order_list):
+        raise NotImplementedError(
+            "fourth-order elastic constants and beyond are not available."
+        )
+
+    return indices

@@ -2,10 +2,9 @@ from pickle import dump
 
 import numpy as np
 
-from elastensor.deformations import Deformations
+from .deformations import Deformations
 from elastensor.parsers import write_input_structure
 from elastensor.structure import ElasticStructure
-
 
 class Deformator:
     """A class to generate and manage deformed crystal structures.
@@ -112,8 +111,8 @@ class Deformator:
         except AttributeError:
             raise AttributeError("Run 'generate' first to create the deformations.")
         else:
-            data = deformations._data
-            data |= {"amplitude": deformations.amplitude, "mode": deformations.mode}
+            data = {"reference_cell": self.base_structure.cell, "mode": deformations.mode}
+            data |= deformations
 
         with open(pickle_filename, "wb") as File:
             dump(File, data)
