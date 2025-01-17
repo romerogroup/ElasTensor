@@ -125,13 +125,7 @@ class ElasticStructure(Structure):
             indices = chain(
                 zip(range(6), range(6)),
                 combinations(range(3), 2),
-                zip(
-                    range(3),
-                    3
-                    * [
-                        symaxis + 3,
-                    ],
-                ),
+                zip(range(3), 3*[symaxis + 3,]),
                 [((symaxis + 1) % 3 + 3, (symaxis + 2) % 3 + 3)],
             )
         elif family == "orthorhombic":
@@ -147,13 +141,7 @@ class ElasticStructure(Structure):
         elif "trigonal" in family:
             n = 5 if "(II)" in family else 4
             indices = chain(
-                zip(
-                    n
-                    * [
-                        0,
-                    ],
-                    range(n),
-                ),
+                zip(n*[0,], range(n)),
                 [(2, 2), (3, 3)],
             )
         elif family == "hexagonal":
@@ -205,22 +193,8 @@ class ElasticStructure(Structure):
             repaxis = (symaxis + 1) % 3
             axes = [symaxis, repaxis, symaxis + 3, repaxis + 3]
             indices = chain(
-                zip(
-                    6
-                    * [
-                        repaxis,
-                    ],
-                    range(6),
-                    range(6),
-                ),
-                zip(
-                    4
-                    * [
-                        symaxis,
-                    ],
-                    axes,
-                    axes,
-                ),
+                zip(6*[repaxis,], range(6), range(6)),
+                zip(4*[symaxis,], axes, axes),
                 [(0, 1, 2), (3, 4, 5)],
                 sort=True,
             )
