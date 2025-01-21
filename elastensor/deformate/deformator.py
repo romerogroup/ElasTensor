@@ -54,10 +54,12 @@ class Deformator:
         ElasticStructure
             A copy of the base structure with deformed cell parameters
         """
+        base_cell = self.base_structure.cell 
         structure = self.base_structure.copy()
         for cell in self._deformed_cells:
             structure.cell = cell
-            yield structure
+            if not np.allclose(base_cell, cell):
+                yield structure
 
     def generate(self):
         """Generate deformed structures based on strain tensors.
@@ -115,4 +117,4 @@ class Deformator:
             data |= deformations
 
         with open(pickle_filename, "wb") as File:
-            dump(File, data)
+            dump(data, File)
