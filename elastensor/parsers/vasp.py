@@ -70,7 +70,7 @@ class VaspParser(Parser):
             cell = lines[2:5]
             elements = [element for element, n in zip(*lines[5:7]) for _ in range(int(n))]
             cartesian = lines[7][0].lower() == 'cartesian'
-            positions = lines[8:8 + len(elements)]
+            positions = [line[:3] for line in lines[8:8 + len(elements)]]
         except IndexError:
             raise StructureFileParsingError("Wrong 'POSCAR' format.")
         except TypeError:
@@ -150,6 +150,7 @@ class VaspParser(Parser):
     
         with open(filename, 'w') as File:
             File.write(''.join(f'{element}{n}' for element, n in composition.items()) + '\n')
+            File.write('  1.0\n')
             for vec in cell:
                 File.write(f'    {" ".join(f"{x:.14f}" for x in vec)}\n')
             File.write(' '.join(composition.keys()) + '\n')
