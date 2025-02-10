@@ -159,18 +159,17 @@ class Calculator:
         for indices, strain in self.mapping.items():
             indices = sorted(indices, key=indices.count) if 'stress' in mode else indices
             coefficients = self.get_symmetric_derivative_coefficients(strain, indices[first:])
-            print(indices, strain)
             values, ordering = np.array([
                 (
                     structure.energy / volume if 'energy' in mode 
-                    else structure.stress[indices[0]], 
+                    else structure.voight_stress[indices[0]], 
                     np.where(k_arr)[0][0]
                 )
                 for structure in self.structures
                 if np.any( k_arr := np.isclose(structure.strain, strain).all(axis=1) )
             ]).T
             values = values[ordering.argsort()]
-            constants[indices] = 1.60218e+2*(coefficients * values).sum()
+            constants[*indices] = 1.60218e+2*(coefficients * values).sum()
 
         self._constants = constants
 

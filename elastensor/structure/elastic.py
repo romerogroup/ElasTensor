@@ -35,6 +35,7 @@ class ElasticStructure(Structure):
     stress : ndarray, shape (3, 3)
         Stress tensor in GPa units
     """
+    _GPA = 0.006241509125883258
 
     def __init__(self, reference_cell=None, energy=None, stress=None, **kwargs):
         super().__init__(**kwargs)
@@ -106,6 +107,17 @@ class ElasticStructure(Structure):
             self._stress = None
         else:
             self._stress = get_valid_array(value, 'stress', dtype=float, shape=(3, 3))
+            self._stress *= -0.1 * self._GPA
+
+    @property
+    def voight_stress(self):
+        """Get stress tensor in Voight notation"""
+
+        stress = self._stress[(0, 1, 2, 1, 0, 0), (0, 1, 2, 2, 2, 1)]
+        stress[3:] += self._stress[(2, 2, 1), (1, 0, 0)]
+        stress[3:] /= 2
+
+        return stress
 
     def second_order_indices(self):
         """Get indices for second-order elastic constants based on crystal symmetry.
