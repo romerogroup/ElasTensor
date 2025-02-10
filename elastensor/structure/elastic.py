@@ -201,7 +201,7 @@ class ElasticStructure(Structure):
                 ((i, j + 3, j + 3) for i, j in product(range(3), repeat=2)),
                 [(3, 4, 5)],
             )
-        elif "tetragonal" in family:
+        elif "tetragonal" in family or "trigonal" in family or family == "hexagonal":
             repaxis = (symaxis + 1) % 3
             axes = [symaxis, repaxis, symaxis + 3, repaxis + 3]
             indices = chain(
@@ -209,14 +209,6 @@ class ElasticStructure(Structure):
                 zip(4*[symaxis,], axes, axes),
                 [(0, 1, 2), (3, 4, 5)],
                 sort=True,
-            )
-        elif "trigonal" in family:
-            raise NotImplementedError(
-                "Third-order constants are not available for 'trigonal' symmetry"
-            )
-        elif family == "hexagonal":
-            raise NotImplementedError(
-                "Third-order constants are not available for 'hexagonal' symmetry"
             )
         elif family == "cubic":
             indices = [(0, 1, 2), (3, 4, 5), (0, 1, 1), (0, 3, 3), (0, 4, 4), (0, 0, 0)]
