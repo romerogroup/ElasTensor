@@ -41,6 +41,13 @@ class Calculator:
         self.mapping = deformations_mapping
         self.reference_cell = reference_cell
 
+    def __str__(self):
+        """Shows calculated constants in a readable format"""
+        return '\n'.join([
+            f"C_{''.join(str(i+1) for i in label)} = {value.round(4)} GPa"
+            for label, value in self.constants.items()
+        ])
+
     @property
     def constants(self):
         """dict: the calculated elastic constants"""
