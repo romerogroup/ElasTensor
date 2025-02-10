@@ -6,3 +6,4 @@ from . import structure
 from . import utils
 
 from .deformate import Deformator
+from .calculator import Calculator
