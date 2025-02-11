@@ -95,7 +95,7 @@ class VaspParser(Parser):
             root = tree.getroot()
 
         simple_keys = ['elements', 'energy']
-        simple_text = lambda element : element.text
+        simple_text = lambda element : element.text.strip()
         split_text = lambda element : element.text.split()
         query = {
             'cell': "structure[@name='finalpos']/crystal/varray[@name='basis']/v",
