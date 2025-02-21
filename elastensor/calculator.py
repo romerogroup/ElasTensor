@@ -123,6 +123,27 @@ class Calculator:
 
         self._structures += structures
 
+    def update_energies(self, energies):
+        """Updates the energies of the structures
+
+        Parameters
+        ----------
+        energies : sequence of floats
+            Energy values to be updated to each structure
+
+        Raises
+        ------
+        ValueError
+            If the length of the energies variable does not match the number of structures
+        """
+        if len(energies) != len(self._structures):
+            raise ValueError(
+                "The number of energy values does not equal the number of structures."
+            )
+
+        for energy, structure in zip(energies, self._structures):
+            structure.energy = energy
+
     def load_pickle(self, filename='deformations.pickle'):
         """Loads information preivously saved by an instance of elastensor.Deformator
         
