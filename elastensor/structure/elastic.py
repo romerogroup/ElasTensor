@@ -239,3 +239,27 @@ class ElasticStructure(Structure):
         structure.reference_cell = reference_cell
 
         return structure
+
+    @classmethod
+    def from_ase(cls, atoms, reference_cell=None):
+        """Create ElasticStructure from ASE Atoms instance."""
+
+        structure = cls(
+            cell=atoms.cell.array,
+            elements=atoms.numbers,
+            positions=atoms.positions,
+            pbc=atoms.pbc,
+            cartesian=True
+        )
+        structure.reference_cell = reference_cell
+
+        try:
+            energy = atoms.get_total_energy()
+            voight_stress = atoms.get_stress()
+        except RuntimeError:
+            pass
+        else:
+            structure._energy = energy
+            structure._stress = voight_stress[[0, 5, 4, 5, 1, 3, 4, 3, 2]].reshape(3, 3)
+
+        return structure
