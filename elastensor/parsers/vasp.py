@@ -38,11 +38,11 @@ class VaspParser(Parser):
     def _read(self):
         """Extracts information from provided file and stores it in self._data"""
 
-        suffix = self.filename.split('.')[-1]
+        suffix = self.filename.split('.')[-1].lower()
 
         if suffix == 'xml':
             self._read_xml()
-        elif suffix == 'vasp' or 'poscar' in suffix.lower():
+        elif suffix == 'vasp' or 'poscar' in suffix or 'contcar' in suffix:
             self._read_poscar()
         else:
             raise FileTypeError(f"Unrecognized file type '{suffix}'.")

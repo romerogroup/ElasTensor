@@ -9,7 +9,8 @@ def get_code_format(filename):
     else:
         suffix = components[-1]
 
-    if 'poscar' in suffix.lower() or suffix == 'xml' or suffix.lower() == 'vasp':
+    lower = suffix.lower()
+    if 'poscar' in lower or 'contcar' in lower or suffix == 'xml' or lower == 'vasp':
         return 'vasp'
     else:
         raise FileTypeError(f"Unrecognized file type '{suffix}'")
