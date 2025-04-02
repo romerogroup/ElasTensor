@@ -14,8 +14,8 @@ class Calculator:
 
     Parameters
     ----------
-    *files : str
-        Path to output file containing the DFT results
+    *structures : ElasticStructure
+        Deformed structures used to calculate the elastic constants
     mode : {'strain-energy', 'strain-stress'}
         Type of deformation mode to use, by default 'strain-energy'
     reference_cell : ndarray
@@ -26,16 +26,24 @@ class Calculator:
 
     def __init__(
         self,
-        *files,
+        *structures,
         mode=None,
         reference_cell=None,
         deformations_mapping=None,
     ):
 
+        wrong_type = next(
+            (type(struc) for struc in structures if not isinstance(struc, ElasticStructure)),
+            None
+        )
+        if wrong_type is not None:
+            raise TypeError(
+                "Only objects of type 'ElasticStructure' can be passed as arguments."
+                f"Received object of type '{wrong_type.__name__}'"
+            )
+
         self._constants = None
-        self._structures = [
-            ElasticStructure.from_file(fname) for fname in files
-        ]
+        self._structures = list(structures)
 
         self.mode = mode
         self.mapping = deformations_mapping
@@ -102,26 +110,6 @@ class Calculator:
         else:
             warn("No reference_cell has been set since there are no structures")
             self._ref_cell = None
-
-    def add_structures(self, *structures):
-        """Adds structures that can be accessed by the structures attribute
-
-        Parameters
-        ----------
-        *structures : ElasticStructure
-            Structures to be added
-        """
-        wrong_type = next(
-            (type(struc) for struc in structures if not isinstance(struc, ElasticStructure)),
-            None
-        )
-        if wrong_type is not None:
-            raise TypeError(
-                "Only objects of type 'ElasticStructure' can be added." 
-                f"Received object of type '{wrong_type.__name__}'"
-            )
-
-        self._structures += structures
 
     def update_energies(self, energies):
         """Updates the energies of the structures
@@ -256,3 +244,13 @@ class Calculator:
         coefficients *= np.sign(masked_strain).prod(axis=-1)
 
         return coefficients
+
+    @classmethod
+    def from_files(cls, *files, **kwargs):
+
+        structures = [
+            ElasticStructure.from_file(fname) for fname in files
+        ]
+        calculator = cls(*structures, **kwargs)
+
+        return calculator
